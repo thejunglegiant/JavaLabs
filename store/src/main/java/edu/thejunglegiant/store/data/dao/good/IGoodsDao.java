@@ -6,5 +6,7 @@ import java.util.List;
 
 public interface IGoodsDao {
 
-    List<GoodEntity> fetchAll();
+    List<GoodEntity> fetchAll(int orderType, int priceFrom, int priceTo);
+
+    GoodEntity fetchById(int id);
 }

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <p>Sort by: <a href="/catalog?sortBy=1">Name</a> <a href="/catalog?sortBy=2">Price high</a> <a href="/catalog?sortBy=3">Price low</a> <a href="/catalog?sortBy=4">Date</a></p>
+    <p>Filters by <b>price</b>:
+        <form action="/catalog" method="get">
+            <input type="number" id="from" name="from">
+            <input type="number" id="to" name="to">
+            <input type="submit" value="Filter">
+        </form>
+    </p>
+    <div th:each="good : ${goods}">
+        <h3><a th:href="@{/catalog/{id}(id=${good.getId()})}" th:text="${good.getTitle()}"></a>, <span th:text="${good.getPrice()}"></span> UAH </h3>
+    </div>
+</body>
+</html>

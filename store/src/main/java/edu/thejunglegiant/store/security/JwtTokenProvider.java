@@ -2,9 +2,7 @@ package edu.thejunglegiant.store.security;
 
 import edu.thejunglegiant.store.exceptions.JwtAuthenticationException;
 import io.jsonwebtoken.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,24 +12,18 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
-@Slf4j
 @Component
 public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
 
-    @Value("${jwt.secret}")
-    private String secretKey;
-    @Value("${jwt.header}")
-    private String authorizationHeader;
-    @Value("${jwt.expiration}")
-    private long validityInMilliseconds;
+    private final static String secretKey = "thejunglegiant";
+    private final static String authorizationHeader = "Authorization";
+    private final static long validityInMilliseconds = 1234567;
 
     public JwtTokenProvider(@Qualifier("userDetailService") UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -65,11 +57,11 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public String getUsername(String token) {
+    public static String getUsername(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public String resolveToken(HttpServletRequest request) {
+    public static String resolveToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
         return Objects.requireNonNull(Arrays.stream(request.getCookies()).filter(item -> item.getName().equals(authorizationHeader)).findFirst().orElse(null)).getValue();
