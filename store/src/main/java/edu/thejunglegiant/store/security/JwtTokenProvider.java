@@ -12,9 +12,10 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Objects;
 
 @Component
 public class JwtTokenProvider {
@@ -23,7 +24,7 @@ public class JwtTokenProvider {
 
     private final static String secretKey = "thejunglegiant";
     private final static String authorizationHeader = "Authorization";
-    private final static long validityInMilliseconds = 1234567;
+    private final static long validityInMinutes = 24 * 60;
 
     public JwtTokenProvider(@Qualifier("userDetailService") UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -33,7 +34,7 @@ public class JwtTokenProvider {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("role", role);
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds * 1000);
+        Date validity = Date.from(LocalDateTime.now().plusMinutes(validityInMinutes).atZone(ZoneId.systemDefault()).toInstant());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -64,7 +65,9 @@ public class JwtTokenProvider {
     public static String resolveToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
-        return Objects.requireNonNull(Arrays.stream(request.getCookies()).filter(item -> item.getName().equals(authorizationHeader)).findFirst().orElse(null)).getValue();
+        Cookie authCookie = Arrays.stream(request.getCookies()).filter(item -> item.getName().equals(authorizationHeader)).findFirst().orElse(null);
+        if (authCookie == null) return null;
+        return authCookie.getValue();
     }
 }
 

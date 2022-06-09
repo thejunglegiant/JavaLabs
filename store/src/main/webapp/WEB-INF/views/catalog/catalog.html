@@ -1,20 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-    <p>Sort by: <a href="/catalog?sortBy=1">Name</a> <a href="/catalog?sortBy=2">Price high</a> <a href="/catalog?sortBy=3">Price low</a> <a href="/catalog?sortBy=4">Date</a></p>
-    <p>Filters by <b>price</b>:
-        <form action="/catalog" method="get">
-            <input type="number" id="from" name="from">
-            <input type="number" id="to" name="to">
-            <input type="submit" value="Filter">
-        </form>
-    </p>
+    <form action="/catalog" method="get" th:object="${filters}">
+        <div id="sortBy">
+            Sort by:
+            <input id="1" type="radio" value="1" name="sortBy" th:field="*{sortBy}">
+            <label for="1">Name</label>
+            <input id="2" type="radio" value="2" name="sortBy" th:field="*{sortBy}">
+            <label for="2">Price high</label>
+            <input id="3" type="radio" value="3" name="sortBy" th:field="*{sortBy}">
+            <label for="3">Price low</label>
+            <input id="4" type="radio" value="4" name="sortBy" th:field="*{sortBy}">
+            <label for="4">Date</label>
+        </div>
+        <p>
+            Choose <b>category</b>:
+            <select name="category" id="category" th:field="*{categoryId}">
+                <option th:each="category : ${categories}" th:value="${category.id}" th:utext="${category.title}"/>
+            </select>
+        </p>
+        <p>
+            Filter by <b>price</b>:
+            <input type="number" id="from" name="from" value="From" th:field="*{priceFrom}">
+            <input type="number" id="to" name="to" value="To" th:field="*{priceTo}">
+        </p>
+        <button type="submit">Filter</button>
+    </form>
+    <br>
     <div th:each="good : ${goods}">
         <h3><a th:href="@{/catalog/{id}(id=${good.getId()})}" th:text="${good.getTitle()}"></a>, <span th:text="${good.getPrice()}"></span> UAH </h3>
     </div>
+    <span th:if="${#lists.size(goods) < 1}">
+        <h3>No goods in category...</h3>
+    </span>
 </body>
 </html>

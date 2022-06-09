@@ -18,18 +18,6 @@ public class GoodsDao implements IGoodsDao {
 
     private static final DBConnection dbConnection = DBConnection.getInstance();
 
-    private final String FETCH_ALL_GOODS = "SELECT * FROM goods";
-
-    private final String FETCH_ALL_GOODS_ORDER_BY_NAME = "SELECT * FROM goods ORDER BY title";
-
-    private final String FETCH_ALL_GOODS_ORDER_BY_PRICE = "SELECT * FROM goods ORDER BY price DESC";
-
-    private final String FETCH_ALL_GOODS_ORDER_BY_PRICE_LOW = "SELECT * FROM goods ORDER BY price";
-
-    private final String FETCH_ALL_GOODS_FILTERED_BY_PRICE = "SELECT * FROM goods WHERE price BETWEEN ? AND ?";
-
-    private final String FETCH_ALL_GOODS_ORDER_BY_DATE = "SELECT * FROM goods ORDER BY date";
-
     private final String FETCH_GOOD_BY_ID = "SELECT * FROM goods WHERE id = ? LIMIT 1";
 
     private GoodEntity buildModel(ResultSet resultSet) throws SQLException {
@@ -44,27 +32,28 @@ public class GoodsDao implements IGoodsDao {
     }
 
     @Override
-    public List<GoodEntity> fetchAll(int orderType, int priceFrom, int priceTo) {
+    public List<GoodEntity> fetchAll(int orderType, int categoryId, double priceFrom, double priceTo) {
         ResultSet resultSet;
         List<GoodEntity> resModel = new ArrayList<>();
 
-        String query = switch (orderType) {
-            case 1 -> FETCH_ALL_GOODS_ORDER_BY_NAME;
-            case 2 -> FETCH_ALL_GOODS_ORDER_BY_PRICE;
-            case 3 -> FETCH_ALL_GOODS_ORDER_BY_PRICE_LOW;
-            case 4 -> FETCH_ALL_GOODS_ORDER_BY_DATE;
-            default -> FETCH_ALL_GOODS;
-        };
-        if (priceFrom >= 0 && priceTo >= 0) {
-            query = FETCH_ALL_GOODS_FILTERED_BY_PRICE;
-        }
+        String query = "SELECT * FROM goods ";
 
-        try (Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
-            if (priceFrom >= 0 && priceTo >= 0) {
-                statement.setInt(1, priceFrom);
-                statement.setInt(2, priceTo);
-            }
-            resultSet = statement.executeQuery();
+        if (categoryId >= 0) {
+            query += "WHERE category_id = %s ".formatted(categoryId);
+        }
+        if (priceFrom >= 0 && priceTo > priceFrom) {
+            query += (categoryId >= 0 ? "AND" : "WHERE") + " price BETWEEN %s AND %s ".formatted(priceFrom, priceTo);
+        }
+         query += switch (orderType) {
+            case 1 -> "ORDER BY title";
+            case 2 -> "ORDER BY price DESC";
+            case 3 -> "ORDER BY price";
+            case 4 -> "ORDER BY date";
+            default -> "";
+        };
+
+        try (Connection connection = dbConnection.getConnection()) {
+            resultSet = connection.createStatement().executeQuery(query);
 
             while (resultSet.next()) {
                 resModel.add(buildModel(resultSet));

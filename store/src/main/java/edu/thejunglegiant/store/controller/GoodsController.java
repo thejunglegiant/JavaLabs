@@ -1,17 +1,19 @@
 package edu.thejunglegiant.store.controller;
 
+import edu.thejunglegiant.store.data.entity.CategoryEntity;
+import edu.thejunglegiant.store.data.entity.GoodEntity;
+import edu.thejunglegiant.store.dto.CatalogFilterDTO;
 import edu.thejunglegiant.store.security.UserRole;
 import edu.thejunglegiant.store.service.GoodsService;
 import edu.thejunglegiant.store.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -27,13 +29,19 @@ public class GoodsController {
     }
 
     @GetMapping
-    public String fetchAllGoods(
-            @RequestParam(value = "sortBy", required = false, defaultValue = "0") int sortBy,
-            @RequestParam(value = "from", required = false, defaultValue = "-1") int from,
-            @RequestParam(value = "to", required = false, defaultValue = "-1") int to,
-            Model model
-    ) {
-        model.addAttribute("goods", service.getAllGoods(sortBy, from, to));
+    public String showCatalog(@ModelAttribute CatalogFilterDTO filters, Model model) {
+        List<GoodEntity> goods;
+
+        if (filters == null)
+            goods = service.getAllGoods();
+        else {
+            goods = service.getFilteredGoods(filters);
+        }
+
+        model.addAttribute("filters", filters == null ? new CatalogFilterDTO() : filters);
+        model.addAttribute("goods", goods);
+        List<CategoryEntity> list = service.getAllCategories();
+        model.addAttribute("categories", service.getAllCategories());
         return "catalog/catalog";
     }
 
