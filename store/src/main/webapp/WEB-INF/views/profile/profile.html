@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Title</title>
+    <style>
+        #content {
+            position: relative;
+        }
+        #content button {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <form action="/cart" method="get">
+            <button type="submit">Cart</button>
+        </form>
+    </div>
+    <h1><span th:text="${user.getFirstName()}"></span> <span th:text="${user.getLastName()}"></span></h1>
+    <h3>Email: <span th:text="${user.getEmail()}"></span></h3>
+    <div th:if="${isAdmin} == true">
+        <form method="post" action="{/profile/delete/{id}(id=${user.getId()})}">
+            <button type="submit">Delete Item</button>
+        </form>
+    </div>
+</body>
+</html>

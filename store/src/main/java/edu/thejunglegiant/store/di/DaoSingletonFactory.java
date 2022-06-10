@@ -4,6 +4,8 @@ import edu.thejunglegiant.store.data.dao.category.CategoriesDao;
 import edu.thejunglegiant.store.data.dao.category.ICategoriesDao;
 import edu.thejunglegiant.store.data.dao.good.GoodsDao;
 import edu.thejunglegiant.store.data.dao.good.IGoodsDao;
+import edu.thejunglegiant.store.data.dao.order.IOrdersDao;
+import edu.thejunglegiant.store.data.dao.order.OrdersDao;
 import edu.thejunglegiant.store.data.dao.user.IUserDao;
 import edu.thejunglegiant.store.data.dao.user.UserDao;
 
@@ -14,6 +16,7 @@ public class DaoSingletonFactory implements IDaoSingletonFactory {
     private final IUserDao userDao = new UserDao();
     private final IGoodsDao goodsDao = new GoodsDao();
     private final ICategoriesDao categoriesDao = new CategoriesDao();
+    private final IOrdersDao ordersDao = new OrdersDao();
 
     public static IDaoSingletonFactory getInstance() {
         return factory;
@@ -32,5 +35,10 @@ public class DaoSingletonFactory implements IDaoSingletonFactory {
     @Override
     public ICategoriesDao getCategoriesDao() {
         return categoriesDao;
+    }
+
+    @Override
+    public IOrdersDao getOrdersDao() {
+        return ordersDao;
     }
 }

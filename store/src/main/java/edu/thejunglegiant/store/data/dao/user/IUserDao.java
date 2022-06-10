@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IUserDao {
 
-    List<UserEntity> fetchAllUsers();
+    List<UserEntity> fetchAllUsers(int currentUserId);
 
     UserEntity findUserById(int id);
 

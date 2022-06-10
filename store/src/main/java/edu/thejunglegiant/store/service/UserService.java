@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Service("userDetailService")
 public class UserService implements UserDetailsService {
@@ -27,11 +28,21 @@ public class UserService implements UserDetailsService {
         return SecurityUser.fromUser(user);
     }
 
-    public UserRole getUserRoleFromRequest(HttpServletRequest request) {
+    public UserEntity getUser(HttpServletRequest request) {
         String token = JwtTokenProvider.resolveToken(request);
-        String email = JwtTokenProvider.getUsername(token);
-        UserEntity user = dao.findUserByEmail(email);
+        String email = JwtTokenProvider.getUserEmail(token);
 
-        return user.getUserRole();
+        return dao.findUserByEmail(email);
+    }
+
+    public List<UserEntity> getAllUsers(HttpServletRequest request) {
+        String token = JwtTokenProvider.resolveToken(request);
+        String email = JwtTokenProvider.getUserEmail(token);
+
+        return dao.fetchAllUsers(dao.findUserByEmail(email).getId());
+    }
+
+    public void deleteUser(int userId) {
+        dao.deleteUserById(userId);
     }
 }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Title</title>
+</head>
+<body>
+    <script>
+        function deleteUser(userId) {
+            fetch(`/profile/${userId}`, { method: 'DELETE' })
+                .then(response => {
+                    var element = document.getElementById(`${userId}`);
+                    element.remove();
+                }
+            );
+        }
+    </script>
+    <div th:each="user : ${users}">
+        <h3 th:id="${user.getId()}"><span th:text="${user.getFirstName()}"></span> <span th:text="${user.getLastName()}"></span> <button th:onclick="'javascript:deleteUser(\''+ ${user.getId()} +'\');'">Delete user</button></h3>
+    </div>
+    <br>
+    <form method="get" action="/catalog">
+        <button type="submit">Go back</button>
+    </form>
+</body>
+</html>

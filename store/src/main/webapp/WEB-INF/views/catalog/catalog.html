@@ -2,8 +2,36 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Title</title>
+    <style>
+        #content {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+        #content button {
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
+    <script>
+        function addToCart(goodId) {
+            fetch(`/cart?goodId=${goodId}`, { method: 'PUT' });
+        }
+    </script>
+
+    <div id="content">
+        <div th:if="${isRegistered} == true">
+            <form action="/profile" method="get">
+                <button type="submit">Profile</button>
+            </form>
+        </div>
+        <div th:if="${isAdmin} == true">
+            <form action="/profile/list" method="get">
+                <button type="submit">Users list</button>
+            </form>
+        </div>
+    </div>
     <form action="/catalog" method="get" th:object="${filters}">
         <div id="sortBy">
             Sort by:
@@ -32,6 +60,7 @@
     <br>
     <div th:each="good : ${goods}">
         <h3><a th:href="@{/catalog/{id}(id=${good.getId()})}" th:text="${good.getTitle()}"></a>, <span th:text="${good.getPrice()}"></span> UAH </h3>
+        <button th:onclick="'javascript:addToCart(\''+ ${good.getId()} +'\');'">Add to cart</button>
     </div>
     <span th:if="${#lists.size(goods) < 1}">
         <h3>No goods in category...</h3>

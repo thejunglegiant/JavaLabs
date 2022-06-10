@@ -20,7 +20,7 @@ public class GoodsDao implements IGoodsDao {
 
     private final String FETCH_GOOD_BY_ID = "SELECT * FROM goods WHERE id = ? LIMIT 1";
 
-    private GoodEntity buildModel(ResultSet resultSet) throws SQLException {
+    public static GoodEntity buildModel(ResultSet resultSet) throws SQLException {
         GoodEntity model = new GoodEntity();
         model.setId(resultSet.getInt("id"));
         model.setTitle(resultSet.getString("title"));

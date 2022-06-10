@@ -17,8 +17,6 @@ public class UserDao implements IUserDao {
 
     private static final DBConnection dbConnection = DBConnection.getInstance();
 
-    private final String FETCH_ALL_USERS = "SELECT * FROM users";
-
     private final String FETCH_USER_BY_ID = "SELECT * FROM users WHERE id = ? LIMIT 1";
 
     private final String FETCH_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ? LIMIT 1";
@@ -28,20 +26,23 @@ public class UserDao implements IUserDao {
         model.setId(resultSet.getInt("id"));
         model.setEmail(resultSet.getString("email"));
         model.setPassword(resultSet.getString("password"));
-        model.setFirstName(resultSet.getString("first_name"));
-        model.setLastName(resultSet.getString("last_name"));
+        String firstname = resultSet.getString("first_name");
+        model.setFirstName(firstname == null ? "Unknown" : firstname);
+        String lastname = resultSet.getString("last_name");
+        model.setLastName(lastname == null ? "User" : lastname);
         model.setRole(resultSet.getString("role"));
         model.setIsActive(resultSet.getBoolean("is_active"));
         return model;
     }
 
     @Override
-    public List<UserEntity> fetchAllUsers() {
+    public List<UserEntity> fetchAllUsers(int currentUserId) {
         ResultSet resultSet;
-
         List<UserEntity> res = new ArrayList<>();
 
-        try (Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(FETCH_ALL_USERS)) {
+        String query = "SELECT * FROM users WHERE id != %s".formatted(currentUserId);
+
+        try (Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -94,7 +95,13 @@ public class UserDao implements IUserDao {
 
     @Override
     public void deleteUserById(int id) {
+        String query = "DELETE FROM users WHERE id = %s".formatted(id);
 
+        try (Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(DaoException.DAO_EXCEPTION_MESSAGE, e);
+        }
     }
 
     @Override
