@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface IUserDao {
 
+    void createUser(String email, String name, String surname, String passwordHash);
+
     List<UserEntity> fetchAllUsers(int currentUserId);
 
     UserEntity findUserById(int id);

@@ -30,6 +30,34 @@ public class AuthController {
         return "auth/login";
     }
 
+    @GetMapping("/register")
+    private String register() {
+        return "auth/register";
+    }
+
+    @PostMapping(path = "/register", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    private String register(@RequestBody MultiValueMap<String, String> body, HttpServletResponse response) {
+        try {
+            String email = body.getFirst("email");
+            String name = body.getFirst("name");
+            String surname = body.getFirst("surname");
+            String password = body.getFirst("password");
+
+            String token = service.register(email, name, surname, password);
+
+            Cookie jwtCookie = new Cookie("Authorization", token);
+            jwtCookie.setPath("/");
+            jwtCookie.setMaxAge(24 * 60 * 60);
+            jwtCookie.setHttpOnly(true);
+
+            response.addCookie(jwtCookie);
+
+            return "redirect:/catalog";
+        } catch (AuthenticationException e) {
+            return "Invalid email/password";
+        }
+    }
+
     @PostMapping(path = "/login", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     private String authenticate(@RequestBody MultiValueMap<String, String> body, HttpServletResponse response) {
         try {
@@ -52,8 +80,17 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    private void logout(HttpServletRequest request, HttpServletResponse response) {
+    private String logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextLogoutHandler handler = new SecurityContextLogoutHandler();
         handler.logout(request, response, null);
+
+        Cookie jwtCookie = new Cookie("Authorization", "");
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(0);
+        jwtCookie.setHttpOnly(true);
+
+        response.addCookie(jwtCookie);
+
+        return "redirect:/auth/login";
     }
 }

@@ -21,10 +21,5 @@
     </div>
     <h1><span th:text="${user.getFirstName()}"></span> <span th:text="${user.getLastName()}"></span></h1>
     <h3>Email: <span th:text="${user.getEmail()}"></span></h3>
-    <div th:if="${isAdmin} == true">
-        <form method="post" action="{/profile/delete/{id}(id=${user.getId()})}">
-            <button type="submit">Delete Item</button>
-        </form>
-    </div>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Title</title>
+    <title>Catalog</title>
     <style>
         #content {
             position: absolute;
@@ -25,10 +25,16 @@
             <form action="/profile" method="get">
                 <button type="submit">Profile</button>
             </form>
+            <form action="auth/logout" method="post">
+                <button type="submit">Logout</button>
+            </form>
         </div>
         <div th:if="${isAdmin} == true">
             <form action="/profile/list" method="get">
                 <button type="submit">Users list</button>
+            </form>
+            <form action="/orders" method="get">
+                <button type="submit">Orders list</button>
             </form>
         </div>
     </div>

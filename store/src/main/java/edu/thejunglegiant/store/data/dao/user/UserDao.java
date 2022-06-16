@@ -5,12 +5,8 @@ import edu.thejunglegiant.store.data.entity.UserEntity;
 import edu.thejunglegiant.store.exceptions.DaoException;
 import edu.thejunglegiant.store.security.UserRole;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class UserDao implements IUserDao {
@@ -36,11 +32,24 @@ public class UserDao implements IUserDao {
     }
 
     @Override
+    public void createUser(String email, String name, String surname, String passwordHash) {
+        String query = "INSERT INTO users (email, first_name, last_name, role, is_active, password) VALUES ('%s', '%s', '%s', '%s', true, '%s')"
+                .formatted(email, name, surname, UserRole.USER.name(), passwordHash);
+
+        try (Connection connection = dbConnection.getConnection()) {
+            Statement stmt = connection.createStatement();
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            throw new DaoException(DaoException.DAO_EXCEPTION_MESSAGE, e);
+        }
+    }
+
+    @Override
     public List<UserEntity> fetchAllUsers(int currentUserId) {
         ResultSet resultSet;
         List<UserEntity> res = new ArrayList<>();
 
-        String query = "SELECT * FROM users WHERE id != %s".formatted(currentUserId);
+        String query = "SELECT * FROM users WHERE id != %s AND is_active = true".formatted(currentUserId);
 
         try (Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             resultSet = statement.executeQuery();
@@ -60,7 +69,7 @@ public class UserDao implements IUserDao {
         ResultSet resultSet;
         UserEntity res = null;
 
-        try(Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(FETCH_USER_BY_ID)) {
+        try (Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(FETCH_USER_BY_ID)) {
             statement.setInt(1, id);
             resultSet = statement.executeQuery();
 
@@ -79,7 +88,7 @@ public class UserDao implements IUserDao {
         ResultSet resultSet;
         UserEntity res = null;
 
-        try(Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(FETCH_USER_BY_EMAIL)) {
+        try (Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(FETCH_USER_BY_EMAIL)) {
             statement.setString(1, email);
             resultSet = statement.executeQuery();
 
@@ -95,7 +104,7 @@ public class UserDao implements IUserDao {
 
     @Override
     public void deleteUserById(int id) {
-        String query = "DELETE FROM users WHERE id = %s".formatted(id);
+        String query = "UPDATE users SET is_active = false WHERE id = %s".formatted(id);
 
         try (Connection connection = dbConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             statement.executeUpdate();

@@ -27,11 +27,31 @@ public class OrdersDao implements IOrdersDao {
     }
 
     @Override
-    public List<OrderEntity> fetchAllOrders(int userId) {
+    public List<OrderEntity> fetchOrdersByUserId(int userId) {
         ResultSet resultSet;
         List<OrderEntity> resModel = new ArrayList<>();
 
         String query = "SELECT * FROM orders WHERE user_id = %s AND status > 0".formatted(userId);
+
+        try (Connection connection = dbConnection.getConnection()) {
+            resultSet = connection.createStatement().executeQuery(query);
+
+            while (resultSet.next()) {
+                resModel.add(buildModel(resultSet));
+            }
+        } catch (SQLException e) {
+            throw new DaoException(DaoException.DAO_EXCEPTION_MESSAGE, e);
+        }
+
+        return resModel;
+    }
+
+    @Override
+    public List<OrderEntity> fetchAllOrders() {
+        ResultSet resultSet;
+        List<OrderEntity> resModel = new ArrayList<>();
+
+        String query = "SELECT * FROM orders";
 
         try (Connection connection = dbConnection.getConnection()) {
             resultSet = connection.createStatement().executeQuery(query);
@@ -59,8 +79,9 @@ public class OrdersDao implements IOrdersDao {
             if (cartStatement.next()) {
                 cartId = buildModel(cartStatement).getId();
             } else {
+                String key[] = {"id"};
                 query = "INSERT INTO orders (user_id, status) VALUES ('%s', '0')".formatted(userId);
-                stmt.executeUpdate(query);
+                stmt.executeUpdate(query, key);
                 cartStatement = stmt.getGeneratedKeys();
 
                 if (cartStatement.next()) {
@@ -79,7 +100,21 @@ public class OrdersDao implements IOrdersDao {
 
     @Override
     public void removeGoodFromCart(int userId, int goodId) {
+        String query = "SELECT * FROM orders WHERE user_id = %s AND status = 0 LIMIT 1".formatted(userId);
 
+        try (Connection connection = dbConnection.getConnection()) {
+            Statement stmt = connection.createStatement();
+            ResultSet cartStatement;
+            cartStatement = stmt.executeQuery(query);
+
+            if (cartStatement.next()) {
+                long cartId = buildModel(cartStatement).getId();
+                query = "DELETE FROM goods_orders WHERE order_id = %s AND good_id = %s".formatted(cartId, goodId);
+                stmt.executeUpdate(query);
+            }
+        } catch (SQLException e) {
+            throw new DaoException(DaoException.DAO_EXCEPTION_MESSAGE, e);
+        }
     }
 
     @Override
@@ -87,7 +122,7 @@ public class OrdersDao implements IOrdersDao {
         ResultSet resultSet;
         List<GoodEntity> resModel = new ArrayList<>();
 
-        String query = "SELECT goods.id, goods.title, goods.color FROM orders\n" +
+        String query = "SELECT goods.* FROM orders\n" +
                 "LEFT JOIN goods_orders ON goods_orders.order_id = orders.id\n" +
                 "LEFT JOIN goods ON goods.id = goods_orders.good_id\n" +
                 "WHERE orders.user_id = %s AND orders.status = 0".formatted(userId);
@@ -103,5 +138,17 @@ public class OrdersDao implements IOrdersDao {
         }
 
         return resModel;
+    }
+
+    @Override
+    public void payCart(int userId) {
+        String query = "UPDATE orders SET status = 1 WHERE user_id = %s AND status = 0".formatted(userId);
+
+        try (Connection connection = dbConnection.getConnection()) {
+            Statement stmt = connection.createStatement();
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            throw new DaoException(DaoException.DAO_EXCEPTION_MESSAGE, e);
+        }
     }
 }

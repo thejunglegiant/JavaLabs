@@ -2,18 +2,31 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Register</title>
 </head>
 <body>
-    <form action="/catalog/calculated">
-        <label for="a">First name:</label><br>
-        <input type="number" id="a" name="a"><br>
-        <label for="b">Last name:</label><br>
-        <input type="number" id="b" name="b"><br><br>
-        <input type="submit" value="Calculate">
+    <form method="post" action="/auth/register">
+        <h2>Register</h2>
+        <p>
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" placeholder="Email" required>
+        </p>
+        <p>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Name" required>
+        </p>
+        <p>
+            <label for="surname">Surname</label>
+            <input type="text" id="surname" name="surname" placeholder="Surname" required>
+        </p>
+        <p>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+        </p>
+        <button type="submit">Register</button>
     </form>
-
-    <br>
-    <p th:text="${result}" />
+    <form method="post" action="/auth/logout">
+        <button type="submit">Logout</button>
+    </form>
 </body>
 </html>

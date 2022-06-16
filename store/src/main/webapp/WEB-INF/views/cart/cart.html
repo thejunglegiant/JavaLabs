@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Your Cart</title>
+</head>
+<body>
+    <script>
+        function removeFromCart(goodId) {
+            fetch(`/cart/${goodId}`, { method: 'DELETE' })
+                .then(response => {
+                    var element = document.getElementById(`${goodId}`);
+                    element.remove();
+                }
+            );
+        }
+    </script>
+    <div th:each="good : ${goods}">
+        <div th:id="${good.getId()}">
+            <h3><a th:href="@{/catalog/{id}(id=${good.getId()})}" th:text="${good.getTitle()}"></a>, <span th:text="${good.getPrice()}"></span> UAH </h3>
+            <button th:onclick="'javascript:removeFromCart(\''+ ${good.getId()} +'\');'">Remove</button>
+        </div>
+    </div>
+    <span th:if="${#lists.size(goods) < 1}">
+        <h3>No goods in cart...</h3>
+    </span>
+    <br>
+    <div th:if="${#lists.size(goods) > 0}">
+        <form method="post" action="/cart">
+            <button type="submit">Pay</button>
+        </form>
+    </div>
+    <form method="get" action="/catalog">
+        <button type="submit">Go back</button>
+    </form>
+</body>
+</html>

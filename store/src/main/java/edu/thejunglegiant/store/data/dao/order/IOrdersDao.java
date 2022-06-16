@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface IOrdersDao {
 
-    List<OrderEntity> fetchAllOrders(int userId);
+    List<OrderEntity> fetchOrdersByUserId(int userId);
+
+    List<OrderEntity> fetchAllOrders();
 
     void addGoodToCart(int userId, int goodId);
 
@@ -15,5 +17,5 @@ public interface IOrdersDao {
 
     List<GoodEntity> getAllCartGoods(int userId);
 
-
+    void payCart(int userId);
 }

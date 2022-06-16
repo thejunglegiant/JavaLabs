@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,5 +28,13 @@ public class AuthService {
         if (user == null) throw new UsernameNotFoundException("User not found");
 
         return jwtTokenProvider.createToken(email, user.getRole());
+    }
+
+    public String register(String email, String name, String surname, String password) throws AuthenticationException {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        String passwordHash = encoder.encode(password);
+        userDao.createUser(email, name, surname, passwordHash);
+
+        return authorize(email, password);
     }
 }

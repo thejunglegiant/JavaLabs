@@ -32,9 +32,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/", "/catalog").permitAll()
+                .antMatchers("/").permitAll()
                 .antMatchers("/auth/**").permitAll()
-                .antMatchers("/profile/list").hasAnyAuthority(UserRole.ADMIN.name())
+                .antMatchers("/profile/list", "/orders").hasAnyAuthority(UserRole.ADMIN.name())
                 .anyRequest().authenticated()
                 .and()
                 .apply(jwtConfigure);
