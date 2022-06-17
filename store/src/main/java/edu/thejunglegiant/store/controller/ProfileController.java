@@ -26,7 +26,10 @@ public class ProfileController {
 
     @GetMapping
     public String profile(HttpServletRequest request, Model model) {
-        UserEntity user = userService.getUser(request);
+        String token = JwtTokenProvider.resolveToken(request);
+        String email = JwtTokenProvider.getUserEmail(token);
+
+        UserEntity user = userService.getUser(email);
 
         model.addAttribute("user", user);
         model.addAttribute("isAdmin", user.getUserRole() == UserRole.ADMIN);
@@ -36,7 +39,10 @@ public class ProfileController {
 
     @GetMapping("/list")
     public String profilesList(HttpServletRequest request, Model model) {
-        model.addAttribute("users", userService.getAllUsers(request));
+        String token = JwtTokenProvider.resolveToken(request);
+        String email = JwtTokenProvider.getUserEmail(token);
+
+        model.addAttribute("users", userService.getAllUsers(email));
         return "profile/list";
     }
 

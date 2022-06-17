@@ -1,19 +1,21 @@
 package edu.thejunglegiant.store.controller;
 
-import edu.thejunglegiant.store.data.entity.CategoryEntity;
 import edu.thejunglegiant.store.data.entity.GoodEntity;
 import edu.thejunglegiant.store.data.entity.UserEntity;
 import edu.thejunglegiant.store.dto.CatalogFilterDTO;
+import edu.thejunglegiant.store.security.JwtTokenProvider;
 import edu.thejunglegiant.store.security.UserRole;
 import edu.thejunglegiant.store.service.GoodsService;
 import edu.thejunglegiant.store.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -39,7 +41,10 @@ public class GoodsController {
             goods = service.getFilteredGoods(filters);
         }
 
-        UserEntity user = userService.getUser(request);
+        String token = JwtTokenProvider.resolveToken(request);
+        String email = JwtTokenProvider.getUserEmail(token);
+
+        UserEntity user = userService.getUser(email);
 
         model.addAttribute("filters", filters == null ? new CatalogFilterDTO() : filters);
         model.addAttribute("goods", goods);
@@ -51,8 +56,11 @@ public class GoodsController {
 
     @GetMapping("/{id}")
     public String showGoodInfo(@PathVariable("id") int id, HttpServletRequest request, Model model) {
+        String token = JwtTokenProvider.resolveToken(request);
+        String email = JwtTokenProvider.getUserEmail(token);
+
         model.addAttribute("good", service.getGoodById(id));
-        model.addAttribute("isAdmin", userService.getUser(request).getUserRole() == UserRole.ADMIN);
+        model.addAttribute("isAdmin", userService.getUser(email).getUserRole() == UserRole.ADMIN);
         return "catalog/good";
     }
 
