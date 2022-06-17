@@ -13,6 +13,10 @@ public class DBConnection {
 
     private static Connection _connection;
 
+    private DBConnection() {
+
+    }
+
     public static synchronized DBConnection getInstance() {
         if (instance == null) {
             instance = new DBConnection();
